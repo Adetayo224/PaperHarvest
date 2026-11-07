@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperHarvest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #1b1d22; --muted: #6b6f78;
+    --line: #e4e1d9; --accent: #1f6f5c; --accent-ink: #ffffff; --ok: #1f6f5c;
+    --soft: #eef5f2; --warn: #a3521a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111315; --card: #1a1d20; --ink: #ecebe7; --muted: #9a9ea6;
+      --line: #2a2e33; --accent: #4fc3a1; --accent-ink: #0d1412; --ok: #4fc3a1;
+      --soft: #17241f; --warn: #e39a62; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+  header { margin-bottom: 28px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--accent);
+    font-weight: 600; letter-spacing: .02em; font-size: 13px; text-transform: uppercase; }
+  .brand svg { width: 22px; height: 22px; }
+  h1 { font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 40px;
+    line-height: 1.1; margin: 12px 0 8px; }
+  .lede { color: var(--muted); margin: 0; max-width: 560px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 24px; }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .hint { color: var(--muted); font-weight: 400; }
+  input[type=text], input[type=number], textarea {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px;
+    background: var(--bg); color: var(--ink); font: inherit; }
+  textarea { min-height: 84px; resize: vertical; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px;
+    border-color: transparent; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .actions { display: flex; gap: 10px; align-items: center; }
+  button { font: inherit; font-weight: 600; border-radius: 9px; padding: 11px 20px;
+    cursor: pointer; border: 1px solid transparent; }
+  .primary { background: var(--accent); color: var(--accent-ink); }
+  .primary:disabled { opacity: .5; cursor: default; }
+  .ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .error { color: var(--warn); font-size: 14px; }
+  #progress { margin-top: 20px; display: none; }
+  .stats { display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px; gap: 12px; flex-wrap: wrap; }
+  .big { font-family: Fraunces, Georgia, serif; font-size: 30px; }
+  .big small { font-family: Inter, sans-serif; font-size: 14px; color: var(--muted); }
+  .bar { height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+  .folder { font: 12.5px "JetBrains Mono", monospace; color: var(--muted);
+    margin: 12px 0 0; word-break: break-all; }
+  ol.log { list-style: none; margin: 16px 0 0; padding: 0; max-height: 360px;
+    overflow: auto; border-top: 1px solid var(--line); }
+  ol.log li { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px;
+    display: grid; grid-template-columns: 64px 1fr; gap: 8px; }
+  ol.log time { font: 12px "JetBrains Mono", monospace; color: var(--muted); padding-top: 2px; }
+  ol.log .ok span::before { content: "✓ "; color: var(--ok); font-weight: 600; }
+  ol.log .done span { font-weight: 600; color: var(--accent); }
+  footer { color: var(--muted); font-size: 13px; margin-top: 24px; }
+  footer a { color: inherit; }
+  @media (max-width: 560px) { form { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/>
+        <path d="M15 3v4h4M9 13h7M9 17h5"/></svg>
+      PaperHarvest
+    </div>
+    <h1>Gather the literature for your research.</h1>
+    <p class="lede">Describe what you are working on and PaperHarvest will find recent
+      open access papers and save the PDFs straight into your folder, with a list of
+      titles, authors, venues and DOIs.</p>
+  </header>
+
+  <section class="card">
+    <form id="f">
+      <div>
+        <label for="name">Your name</label>
+        <input id="name" type="text" placeholder="Ada Lovelace" autocomplete="name">
+      </div>
+      <div>
+        <label for="count">How many papers</label>
+        <input id="count" type="number" min="1" max="500" value="50">
+      </div>
+      <div class="full">
+        <label for="topic">Research topic <span class="hint">(keywords work best)</span></label>
+        <textarea id="topic" placeholder="e.g. GNSS denied UAV navigation visual inertial odometry"></textarea>
+      </div>
+      <div>
+        <label for="year">Published from year</label>
+        <input id="year" type="number" min="1900">
+      </div>
+      <div style="align-self:end">
+        <label class="check"><input id="peer" type="checkbox" checked>
+          Peer reviewed only (skip preprints)</label>
+      </div>
+      <div class="full actions">
+        <button class="primary" id="go" type="submit">Start downloading</button>
+        <button class="ghost" id="stop" type="button" hidden>Stop</button>
+        <span class="error" id="err"></span>
+      </div>
+    </form>
+
+    <div id="progress">
+      <div class="stats">
+        <div class="big"><span id="done">0</span> <small>of <span id="target">0</span> papers saved</small></div>
+        <small class="hint" id="checked"></small>
+      </div>
+      <div class="bar"><div id="fill"></div></div>
+      <p class="folder" id="folder"></p>
+      <ol class="log" id="log"></ol>
+    </div>
+  </section>
+
+  <footer>Only legally open access papers are downloaded, using the free
+    <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a> index.
+    Built by Saka Adetayo, Samfred Robotics.</footer>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  $("year").value = new Date().getFullYear() - 5;
+  try { $("name").value = localStorage.getItem("ph_name") || ""; } catch (e) {}
+  let timer = null;
+
+  $("f").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("err").textContent = "";
+    try { localStorage.setItem("ph_name", $("name").value); } catch (e) {}
+    const res = await fetch("/api/start", { method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: $("name").value, topic: $("topic").value,
+        count: +$("count").value, from_year: +$("year").value, peer_only: $("peer").checked }) });
+    const data = await res.json();
+    if (!res.ok) { $("err").textContent = data.error || "Something went wrong."; return; }
+    $("progress").style.display = "block";
+    $("go").disabled = true; $("stop").hidden = false;
+    clearInterval(timer); timer = setInterval(poll, 1200); poll();
+  });
+
+  $("stop").addEventListener("click", () => fetch("/api/stop", { method: "POST" }));
+
+  async function poll() {
+    const s = await (await fetch("/api/status")).json();
+    $("done").textContent = s.done; $("target").textContent = s.target;
+    $("checked").textContent = s.checked ? `${s.checked} papers checked` : "";
+    $("fill").style.width = s.target ? (100 * s.done / s.target) + "%" : "0";
+    $("folder").textContent = s.folder ? "Saving to " + s.folder : "";
+    $("log").innerHTML = s.log.slice().reverse().map(l =>
+      `<li class="${l.kind}"><time>${l.t}</time><span>${l.msg.replace(/</g, "&lt;")}</span></li>`).join("");
+    if (s.finished) {
+      clearInterval(timer); $("go").disabled = false; $("stop").hidden = true;
+      $("go").textContent = "Start another search";
+    }
+  }
+</script>
+</body>
+</html>
